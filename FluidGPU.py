@@ -18,15 +18,15 @@ class Fluid:
         self.diffusion = diffusion
         self.viscosity = viscosity
 
-        self.s = [0.0 for i in range(N * N)]
-        self.density = [0.0 for i in range(N * N)]
+        self.s = numpy.zeros(N * N, dtype="float32")
+        self.density = numpy.zeros(N * N, dtype="float32")
         self.rectangles = []
 
-        self.vel_x = [0.0 for i in range(N * N)]
-        self.vel_y = [0.0 for i in range(N * N)]
+        self.vel_x = numpy.zeros(N * N, dtype="float32")
+        self.vel_y = numpy.zeros(N * N, dtype="float32")
 
-        self.vel_x0 = [0.0 for i in range(N * N)]
-        self.vel_y0 = [0.0 for i in range(N * N)]
+        self.vel_x0 = numpy.zeros(N * N, dtype="float32")
+        self.vel_y0 = numpy.zeros(N * N, dtype="float32")
 
     def add_density(self, x, y, amount):
         self.density[IX(x, y)] += amount
@@ -44,23 +44,19 @@ def set_boundary(b, x):
     threadIdx_y = cuda.threadIdx.y
     for iter in range(32 * _N):
         # Skip top edge and bottom edge
-        if cuda.threadIdx.y == 0 or cuda.threadIdx.y == 31:
-            print("thread y = 0 or 31")
-            print(x.density[:5])
-            continue
+        # if cuda.threadIdx.y == 0 or cuda.threadIdx.y == 31:
+        #     print("thread y = 0 or 31")
+        #     print(x.density[:5])
+        #     continue
 
         # Skip left edge and right edge
         if iter == 0 or iter == 32 * _N - 1:
             continue
 
-        print(b)
-
-        i = int(threadIdx_x) + iter
-        j = int(threadIdx_y)
-        x[0] = 1
-
         if b == 2:
             print("HOLY SHIT WE WINNIN!")
+
+    return x
 
 
 def IX(i, j):
