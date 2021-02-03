@@ -6,8 +6,8 @@ import pygame
 pygame.init()
 
 N = 64
-iter = 4
-SCALE = 4
+iter = 8
+SCALE = 16
 window = pygame.display.set_mode((N * SCALE, N * SCALE))
 
 
@@ -61,8 +61,6 @@ class FluidSquare:
 
     def addDensity(self, x, y, amount):
         self.density[IX(x, y)] += amount
-        print("x = " + str(x))
-        print("y = " + str(y))
 
     def addVelocity(self, x, y, amountX, amountY):
         self.vel_x[IX(x, y)] += amountX
@@ -217,8 +215,11 @@ def IX(i, j):
 
 
 def main():
-    fs = FluidSquare(viscosity=0.0000001, diffusion=0, dt=0.2)
+    fs = FluidSquare(viscosity=0, diffusion=0, dt=0.2)
     print(N // 2)
+
+    x = np.random.randint(0, N)
+    y = np.random.randint(0, N)
 
     t = 0
     run = True
@@ -226,15 +227,15 @@ def main():
         pygame.time.delay(100)
 
         # Add density
-        cx = int((0.5 * N))
-        cy = int((0.5 * N))
+        cx = int(x)
+        cy = int(y)
         for i in range(-1, 1):
             for j in range(-1, 1):
-                fs.addDensity(cx + i, cy + j, 150)
+                fs.addDensity(cx + i, cy + j, 254)
 
         for i in range(32):
-            angle = np.pi
-            velocity = Vector.fromAngle(angle, 10)
+            angle = np.random.random() * np.pi * 2
+            velocity = Vector.fromAngle(angle, 100)
             velocity.dotProduct(0.2)
             t += 0.01
             fs.addVelocity(cx, cy, velocity.x, velocity.y)
@@ -247,6 +248,15 @@ def main():
                 run = False
 
         pygame.display.update()
+
+        x += np.random.uniform(-1, 1)
+        y += np.random.uniform(-1, 1)
+
+        if x > N:
+            x = np.random.randint(0, N)
+
+        if y > N:
+            y = np.random.randint(0, N)
 
     pygame.quit()
 

@@ -1,6 +1,9 @@
 import numba
-from pyculib import blas, rand, sparse
+import numpy
+from numba import cuda
+# from pyculib import blas, rand, sparse
 import pygame
+
 
 _N = 2
 N = 32 * _N  # mapped to threadIdx atm
@@ -37,21 +40,27 @@ class Fluid:
 
 
 def set_boundary(b, x):
+    threadIdx_x = cuda.threadIdx.x
+    threadIdx_y = cuda.threadIdx.y
     for iter in range(32 * _N):
         # Skip top edge and bottom edge
-        # if threadIdx.y == 0 or threadIdx.y == 31:
-        #     continue
+        if cuda.threadIdx.y == 0 or cuda.threadIdx.y == 31:
+            print("thread y = 0 or 31")
+            print(x.density[:5])
+            continue
 
         # Skip left edge and right edge
-        # if iter == 0 or iter == 32 * _N - 1:
-        #     continue
+        if iter == 0 or iter == 32 * _N - 1:
+            continue
 
-        # i = threadIdx.x + iter
-        # j = threadIdx.y
+        print(b)
+
+        i = int(threadIdx_x) + iter
+        j = int(threadIdx_y)
+        x[0] = 1
 
         if b == 2:
-            x[IX(i, j)] = -x[]
-
+            print("HOLY SHIT WE WINNIN!")
 
 
 def IX(i, j):
@@ -59,7 +68,15 @@ def IX(i, j):
 
 
 def main():
-    fluid = Fluid(0, 0.0000001, 0.2)
+    fluid = Fluid(0, 0.0001, 0.2)
+
+    an_array = numpy.asarray([0 for i in range(32)])
+    threadsperblock = 32
+    blockspergrid = (len(an_array) + (threadsperblock - 1)) // threadsperblock
+    print(threadsperblock, blockspergrid)
+    set_boundary[blockspergrid, threadsperblock](2, fluid)
+
+    print("Done. " + str(an_array[0]))
 
 
 if __name__ == "__main__":
